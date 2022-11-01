@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1041</width>
-    <height>674</height>
+    <height>716</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -124,6 +124,45 @@
     </property>
     <property name="text">
      <string>Загрузить</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ResBut">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>660</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Расчет графа</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="DelBut">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>660</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Удалить Вершину</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="AddBut">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>660</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Добавить Вершину</string>
     </property>
    </widget>
   </widget>
