@@ -33,28 +33,79 @@ class MainWindow(QMainWindow):
         self.Error.setVisible(False)
         self.K=0
         self.matrA_res=[]
+        self.matrA_buf = []
 
 
 
     def addinMatr(self):
-        if self.kolV.text()=='':
+        if self.kolV.text()=='' or int(self.kolV.text())<0:
             self.kolV.setText('1')
         else:
             self.kolV.setText(str(int(self.kolV.text())+1))
+        self.matrA_buf = self.zapisMatr(self.matrA_buf)
         self.makeMatr()
 
     def delinMatr(self):
-        ...
+        n=self.MatrA.currentRow()
+        m = self.MatrA.currentColumn()
+        if n == m or (n!=0 and m==0) or (m!=0 and n==0):
+            self.Error.setVisible(False)
+            self.Error.setText('')
+            if m==0:
+                print('Удаляем '+str(n))
+                delV=n
 
+            else:
+                print('Удаляем ' + str(m))
+                delV = m
+            buf = []
+            indB=0
+            for i in range(len(self.matrA_buf)):
+                if i != delV:
+                    buf.append([])
+                    for j in range(len(self.matrA_buf[i])):
+                        if j!=delV:
+                            buf[indB].append(self.matrA_buf[i][j])
+                    indB += 1
+            self.matrA_buf=buf
+            self.K -= 1
+            self.kolV.setText(str(self.K))
+            self.makeMatr()
 
+        else:
+            self.Error.setVisible(True)
+            self.Error.setText('Выделите одну вершину')
+
+    def zapisMatr(self, matr):
+        flag=True
+        while flag:
+            print(len(matr) < self.K)
+            if len(matr) < self.K:
+                for i in range(len(matr)):
+                    matr[i].append('-')
+                matr.append([])
+                for i in range(len(matr)):
+                    if i == len(matr) - 1:
+                        matr[-1].append('0')
+                    else:
+                        matr[-1].append('-')
+            else:
+                flag = False
+        for i in range(self.K):
+            for j in range(self.K):
+                matr[i][j]=self.MatrA.cellWidget(i, j).text()
+        return matr
 
     def resMatr(self):
-
         self.matrA_res=[]
         for i in range(self.K):
             self.matrA_res.append([])
             for j in range(self.K):
-                self.matrA_res[i].append(self.MatrA.cellWidget(i, j).text())
+                if i==j:
+                    self.matrA_res[i].append('0')
+                else:
+                    self.matrA_res[i].append('-')
+        self.matrA_res = self.zapisMatr(self.matrA_res)
         graf1='digraph G {\n'
         for i in range(self.K):
             for j in range(self.K):
@@ -139,10 +190,11 @@ class MainWindow(QMainWindow):
 
     def loadMatr(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'Data\ ', '(*.txt)')
-        f = open(fname[0], 'r')
-        Data = f.read()
-        f.close()
-        self.loadMatr_1(Data)
+        if fname!=('', ''):
+            f = open(fname[0], 'r')
+            Data = f.read()
+            f.close()
+            self.loadMatr_1(Data)
 
     def loadMatr_1(self, Data):
         Data = Data.split('\n')
@@ -160,21 +212,22 @@ class MainWindow(QMainWindow):
         for i in range(int(self.MatrA.rowCount())):
             for j in range(int(self.MatrA.columnCount())):
                 LineA = QtWidgets.QLineEdit()
-                if i == j:
-                    LineA.setText('0')
-                else:
-                    LineA.setText('-')
                 LineA.setValidator(QIntValidator())
                 self.MatrA.setCellWidget(i, j, LineA)
         for i in range(self.K):
             for j in range(self.K):
                 self.MatrA.cellWidget(i, j).setText(Data[i][j])
+        self.matrA_buf=self.zapisMatr(self.matrA_buf)
 
 
 
     def makeMatr(self):
         if self.kolV.text() != '':
             if int(self.kolV.text()) > 0:
+                if self.matrA_buf!=[]:
+                    flagBuf=True
+                else:
+                    flagBuf = False
                 self.Error.setVisible(False)
                 self.Error.setText('')
                 self.K = int(self.kolV.text())
@@ -185,15 +238,36 @@ class MainWindow(QMainWindow):
                 self.MatrA.resize(QtCore.QSize(w, h))
                 for i in range(self.K):
                     self.MatrA.setColumnWidth(i, 1)
-                for i in range(int(self.MatrA.rowCount())):
-                    for j in range(int(self.MatrA.columnCount())):
-                        LineA = QtWidgets.QLineEdit()
-                        if i==j:
-                            LineA.setText('0')
-                        else:
-                            LineA.setText('-')
-                        LineA.setValidator(QIntValidator())
-                        self.MatrA.setCellWidget(i, j, LineA)
+                if not flagBuf:
+                    for i in range(int(self.MatrA.rowCount())):
+                        for j in range(int(self.MatrA.columnCount())):
+                            LineA = QtWidgets.QLineEdit()
+                            if i == j:
+                                LineA.setText('0')
+                            else:
+                                LineA.setText('-')
+                            LineA.setValidator(QIntValidator())
+                            self.MatrA.setCellWidget(i, j, LineA)
+                else:
+                    for i in range(len(self.matrA_buf)):
+                        for j in range(len(self.matrA_buf)):
+                            LineA = QtWidgets.QLineEdit()
+                            LineA.setText(self.matrA_buf[i][j])
+                            LineA.setValidator(QIntValidator())
+                            self.MatrA.setCellWidget(i, j, LineA)
+
+                    for i in range(int(self.MatrA.rowCount())):
+                        for j in range(int(self.MatrA.columnCount())):
+                            if j>=len(self.matrA_buf) or i>=len(self.matrA_buf):
+                                LineA = QtWidgets.QLineEdit()
+                                if i == j:
+                                    LineA.setText('0')
+                                else:
+                                    LineA.setText('-')
+                                LineA.setValidator(QIntValidator())
+                                self.MatrA.setCellWidget(i, j, LineA)
+                self.matrA_buf = self.zapisMatr(self.matrA_buf)
+
             else:
                 self.Error.setVisible(True)
                 self.Error.setText('Введите число больше 0')
